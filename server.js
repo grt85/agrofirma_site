@@ -108,8 +108,8 @@ app.post('/api/contact', async (req, res) => {
   };
 
   try {
-    await transporter.sendMail(adminMail);
-    await transporter.sendMail(userReply);
+   /* await transporter.sendMail(adminMail);
+    await transporter.sendMail(userReply);*/
 
     const logEntry = `[${new Date().toISOString()}]\nІм’я: ${name}\nТелефон: ${phone}\nEmail: ${email}\nПовідомлення: ${message}\n-------------------------------\n`;
     fs.appendFile(path.join(__dirname, 'messages.log'), logEntry, err => {
@@ -197,4 +197,5 @@ app.post('/admin/delete-selected', basicAuth, (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Сервер працює на http://localhost:${PORT}`);
 });
+
 
