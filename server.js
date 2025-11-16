@@ -19,7 +19,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // 🕒 Антиспам
 const recentSubmissions = new Map();
-const SPAM_TIMEOUT = 60 * 1000;
+const SPAM_TIMEOUT = 10 * 1000;
 
 // 📁 Шлях до файлу
 const filePath = path.join(__dirname, 'messages.json');
@@ -197,3 +197,4 @@ app.post('/admin/delete-selected', basicAuth, (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Сервер працює на http://localhost:${PORT}`);
 });
+
