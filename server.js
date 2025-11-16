@@ -13,8 +13,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname)); // Статичні файли з кореня
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -25,7 +24,7 @@ const SPAM_TIMEOUT = 60 * 1000;
 // 📁 Шлях до файлу
 const filePath = path.join(__dirname, 'messages.json');
 
-// 📁 Читання повідомлень
+// 📁 Утиліти
 function readMessages() {
   if (!fs.existsSync(filePath)) return [];
   try {
@@ -37,9 +36,8 @@ function readMessages() {
   }
 }
 
-// 📁 Збереження повідомлення
 function saveMessageAsJSON(entry) {
-  let data = readMessages();
+  const data = readMessages();
   data.push(entry);
   try {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
@@ -48,16 +46,13 @@ function saveMessageAsJSON(entry) {
   }
 }
 
-// 🔁 Перевірка на дубль
 function isDuplicateMessage({ email, message }) {
   const messages = readMessages();
   return messages.some(entry =>
-    entry.email === email &&
-    entry.message.trim() === message.trim()
+    entry.email === email && entry.message.trim() === message.trim()
   );
 }
 
-// 🔐 Basic Auth middleware
 function basicAuth(req, res, next) {
   const auth = req.headers.authorization || '';
   const expected = 'Basic ' + Buffer.from(`${process.env.ADMIN_USER}:${process.env.ADMIN_PASS}`).toString('base64');
