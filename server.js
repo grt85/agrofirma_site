@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(__dirname)); // Статичні файли з кореня
+app.use(express.static(__dirname));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -88,11 +88,6 @@ app.post('/api/contact', async (req, res) => {
 
   recentSubmissions.set(email, now);
 
- /* const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS }
-  });*/
-
   const adminMail = {
     from: `"AgroFirma" <${process.env.MAIL_USER}>`,
     to: process.env.MAIL_USER,
@@ -108,8 +103,18 @@ app.post('/api/contact', async (req, res) => {
   };
 
   try {
-    await transporter.sendMail(adminMail);
-    await transporter.sendMail(userReply);
+    if (process.env.MAIL_USER && process.env.MAIL_PASS) {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS
+        }
+      });
+
+      await transporter.sendMail(adminMail);
+      await transporter.sendMail(userReply);
+    }
 
     const logEntry = `[${new Date().toISOString()}]\nІм’я: ${name}\nТелефон: ${phone}\nEmail: ${email}\nПовідомлення: ${message}\n-------------------------------\n`;
     fs.appendFile(path.join(__dirname, 'messages.log'), logEntry, err => {
@@ -197,6 +202,3 @@ app.post('/admin/delete-selected', basicAuth, (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Сервер працює на http://localhost:${PORT}`);
 });
-
-
-
