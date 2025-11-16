@@ -1,0 +1,253 @@
+/* 👥 Секція команди */
+.team-section {
+  padding: 80px 40px;
+  background-color: #e8f5e9;
+  text-align: center;
+}
+
+/* 🔄 Слайдер команди */
+.team-slider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.team-grid {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  transition: transform 0.5s ease;
+}
+
+/* 🔄 Картка команди */
+.flip-card {
+  background-color: transparent;
+  width: 250px;
+  height: 300px;
+  perspective: 1000px;
+  flex-shrink: 0;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 🔳 Передня сторона */
+.flip-card-front {
+  background-color: #fff;
+  text-align: center;
+}
+
+.flip-card-front img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.flip-card-front h3 {
+  margin-top: 10px;
+  color: #388e3c;
+}
+
+/* 🔁 Задня сторона */
+.flip-card-back {
+  background-color: #c8e6c9;
+  color: #1b5e20;
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+
+/* 🔘 Кнопки перемикання */
+.team-prev,
+.team-next {
+  background-color: #388e3c;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.team-prev:hover,
+.team-next:hover {
+  background-color: #2e7d32;
+}
+
+/* 📦 Swiper */
+.team-swiper {
+  padding: 40px 0;
+}
+
+.swiper-slide {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+/* 🎯 Стрілки Swiper */
+.swiper-button-prev,
+.swiper-button-next {
+  width: 35px;
+  height: 35px;
+  background-color: #388e3c;
+  color: white;
+  border-radius: 50%;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: background 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  font-size: 18px;
+}
+
+.team-swiper:hover .swiper-button-prev,
+.team-swiper:hover .swiper-button-next,
+.team-swiper:focus-within .swiper-button-prev,
+.team-swiper:focus-within .swiper-button-next {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 768px) {
+  .team-section {
+    padding: 30px 15px;
+  }
+
+  .swiper-slide {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .flip-card {
+    width: 90%;
+    max-width: 320px;
+    height: auto;
+    perspective: 1000px;
+  }
+
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    min-height: 320px; /* ✅ гарантує висоту */
+    transform-style: preserve-3d;
+  }
+
+  .flip-card-front,
+  .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .flip-card-front {
+    background-color: #fff;
+    text-align: center;
+  }
+
+  .flip-card-front img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .flip-card-front h3 {
+    font-size: 1.2rem;
+    margin: 10px 0;
+    color: #388e3c;
+  }
+
+  .flip-card-back {
+    background-color: #c8e6c9;
+    color: #1b5e20;
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    font-size: 1rem;
+    text-align: center;
+  }
+}
+
+
+/* Переворот при класі flipped */
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Кнопки */
+.flip-btn,
+.back-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #388e3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Назад — темніший фон */
+.back-btn {
+  background-color: #1b5e20;
+}
+
+.back-btn:hover {
+  background-color: #145a1a;
+}
+
+/* ❌ Приховати кнопки на десктопі */
+@media (min-width: 769px) {
+  .flip-btn,
+  .back-btn {
+    display: none;
+  }
+
+  .flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+}

@@ -1,0 +1,166 @@
+/* 🌌 Основний футер */
+.site-footer {
+  background-color: rgba(0, 50, 100, 0.95);
+  color: #f5f5f5;
+  padding: 60px 20px 30px;
+  font-family: 'Segoe UI', sans-serif;
+  transition: background 0.4s ease;
+}
+
+.site-footer:hover {
+  background-color: rgba(0, 50, 100, 1);
+}
+
+/* 📦 Контейнер футера з Grid */
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* 🏷️ Бренд */
+.footer-brand {
+  text-align: center;
+}
+
+.footer-logo {
+  width: 50px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 4px #daa520);
+}
+
+.footer-brand p {
+  font-size: 15px;
+  color: #ccc;
+  margin-top: 10px;
+}
+
+/* 📞 Контакти та заголовки */
+.footer-contact,
+.footer-social,
+.footer-messengers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.footer-contact h4,
+.footer-social h4,
+.footer-messengers h4 {
+  font-size: 18px;
+  color: #daa520;
+  margin-bottom: 15px;
+}
+
+.footer-contact p {
+  font-size: 15px;
+  margin-bottom: 8px;
+  color: #ddd;
+}
+
+/* 🌐 Іконки соцмереж та месенджерів */
+.social-icons,
+.messenger-icons {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.social-icons a,
+.messenger-icons a {
+  font-size: 20px;
+  color: #f5f5f5;
+  transition: all 0.4s ease;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+}
+
+/* 💡 Неонові ефекти */
+.social-icons a:hover,
+.messenger-icons a:hover {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+.social-icons a[aria-label="Facebook"]:hover { color: #1877f2; }
+.social-icons a[aria-label="Instagram"]:hover { color: #e1306c; }
+.social-icons a[aria-label="Telegram"]:hover { color: #0088cc; }
+.social-icons a[aria-label="YouTube"]:hover { color: #ff0000; }
+
+.messenger-icons a[aria-label="WhatsApp"]:hover { color: #25d366; }
+.messenger-icons a[aria-label="Viber"]:hover { color: #7360f2; }
+
+/* 📢 Рекламний слайдер */
+.footer-ad-slider {
+  margin: 40px auto 0;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.footer-ad-slider .swiper-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.footer-ad-slider .swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0d2a4d;
+  padding: 10px;
+}
+
+.ad-banner img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.ad-banner:hover img {
+  transform: scale(1.02);
+}
+
+/* 🧾 Нижня частина футера */
+.footer-bottom {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 14px;
+  color: #aaa;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 20px;
+}
+
+/* 📱 Адаптація для мобільних */
+@media (max-width: 768px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .footer-ad-slider {
+    margin: 30px auto 0;
+    max-width: 100%;
+  }
+
+  .footer-ad-slider .swiper-slide {
+    padding: 5px;
+  }
+
+  .ad-banner img {
+    border-radius: 8px;
+  }
+}
