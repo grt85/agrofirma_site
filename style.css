@@ -485,4 +485,46 @@ body {
   .form-message {
     font-size: 14px;
   }
+
 }
+
+
+.contacts {
+  max-width: 130px; /* чуть больше места */
+  margin: 30px auto;
+  padding: 12px;
+  text-align: center;
+  background: #111;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0,255,255,0.4);
+  color: #0ff;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.contacts h2 {
+  font-size: 12px;
+  margin-bottom: 6px;
+  text-shadow: 0 0 5px #ff00ff, 0 0 10px #00ffff;
+}
+
+.contacts p {
+  font-size: 11px;
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.contacts .qr-code {
+  width: 50px;
+  border: 2px solid #0ff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #0ff, 0 0 20px #ff00ff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contacts .qr-code:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px #ff00ff, 0 0 30px #0ff;
+}
+
+
+
