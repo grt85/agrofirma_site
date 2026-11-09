@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Адмін-панель | Повідомлення</title>
+  <link rel="stylesheet" href="/admin-panel.css">
+</head>
+<body>
+  <nav class="mobile-nav">
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Меню</button>
+    <ul id="menu" class="menu hidden">
+      <li><a href="/admin">📬 Повідомлення</a></li>
+      <li><a href="/admin/users">👥 Користувачі</a></li>
+      <li><a href="/admin/stats">📊 Статистика</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h1>📬 Повідомлення з форми зворотного зв’язку</h1>
+
+    <form method="GET" action="/admin" class="filter-form">
+      <input type="date" name="from" value="<%= from %>" />
+      <input type="date" name="to" value="<%= to %>" />
+      <input type="hidden" name="page" value="1" />
+      <button type="submit">🔍 Фільтрувати</button>
+    </form>
+
+    <input type="text" id="searchInput" oninput="filterTable()" placeholder="🔍 Пошук за email..." />
+    <a class="button" href="/api/export-csv?page=<%= page %>&<%= queryParams %>">📤 Експортувати CSV</a>
+
+    <p>Всього повідомлень: <%= totalMessages %></p>
+
+    <% if (pageData.length === 0) { %>
+      <p>Немає повідомлень для відображення.</p>
+    <% } else { %>
+      <form id="bulkDeleteForm" method="POST" action="/admin/delete-selected">
+        <button type="submit">🗑 Видалити вибрані</button>
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" onclick="toggleAll(this)"></th>
+              <th onclick="sortTable(1)">Дата ⬍</th>
+              <th onclick="sortTable(2)">Ім’я ⬍</th>
+              <th onclick="sortTable(3)">Телефон ⬍</th>
+              <th onclick="sortTable(4)">Email ⬍</th>
+              <th>Повідомлення</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% pageData.forEach(entry => { %>
+              <tr>
+                <td><input type="checkbox" name="selectedIds" value="<%= entry.id %>"></td>
+                <td data-label="Дата"><%= new Date(entry.timestamp).toLocaleString() %></td>
+                <td data-label="Ім’я"><%= entry.name %></td>
+                <td data-label="Телефон"><%= entry.phone %></td>
+                <td data-label="Email"><%= entry.email %></td>
+                <td data-label="Повідомлення">
+                  <button type="button" class="view-message"
+                    data-message="<%= entry.message.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') %>">
+                    📖 Переглянути
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </form>
+    <% } %>
+
+    <div class="pagination">
+      <% if (page > 1) { %>
+        <a href="/admin?page=<%= page - 1 %>&<%= queryParams %>">⬅️ Попередня</a>
+      <% } %>
+      <% if (page < totalPages) { %>
+        <a href="/admin?page=<%= page + 1 %>&<%= queryParams %>">Наступна ➡️</a>
+      <% } %>
+      <span>Сторінка <%= page %> з <%= totalPages %></span>
+    </div>
+  </main>
+
+  <div id="modal" class="modal hidden" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h2>Повідомлення</h2>
+      <p id="modalText"></p>
+      <button onclick="closeModal()">Закрити</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('menu').classList.toggle('hidden');
+    }
+
+    function filterTable() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('tbody tr').forEach(row => {
+        const emailCell = row.querySelector('[data-label="Email"]');
+        const email = emailCell ? emailCell.textContent.toLowerCase() : '';
+        row.style.display = email.includes(input) ? '' : 'none';
+      });
+    }
+
+    function toggleAll(source) {
+      document.querySelectorAll('input[name="selectedIds"]').forEach(cb => {
+        cb.checked = source.checked;
+      });
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal');
+      modal.classList.remove('show');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function sortTable(columnIndex) {
+      const tbody = document.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const isDate = columnIndex === 1;
+
+      rows.sort((a, b) => {
+        const aText = a.children[columnIndex].textContent.trim();
+        const bText = b.children[columnIndex].textContent.trim();
+        return isDate
+          ? new Date(aText) - new Date(bText)
+          : aText.localeCompare(bText);
+      });
+
+      tbody.innerHTML = '';
+      rows.forEach(row => tbody.appendChild(row));
+    }
+
+    document.getElementById('bulkDeleteForm')?.addEventListener('submit', function (e) {
+      if (!confirm('Ви впевнені, що хочете видалити вибрані повідомлення?')) {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    document.querySelectorAll('.view-message').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const msg = btn.getAttribute('data-message');
+        const modal = document.getElementById('modal');
+        document.getElementById('modalText').textContent = msg;
+        modal.classList.add('show');
+        modal.classList.remove('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
