@@ -2,6 +2,11 @@
 // AgroFirma Chat Widget
 // ====================================
 
+const API_URL =
+  window.location.hostname.includes("localhost")
+    ? "http://localhost:3000"
+    : "https://agrofirma.onrender.com";
+
 const messagesContainer =
   document.getElementById("chat-messages");
 
@@ -17,16 +22,21 @@ const sendBtn =
 const input =
   document.getElementById("chat-input");
 
+const closeBtn =
+  document.getElementById("chat-close");
+
 let greetingShown = false;
 
 // ====================================
-// SAFE MESSAGE RENDER
+// MESSAGES
 // ====================================
 
 function addMessage(
   text,
   type = "agent"
 ) {
+
+  if (!messagesContainer) return;
 
   const message =
     document.createElement("div");
@@ -57,6 +67,8 @@ function addMessage(
 
 function scrollToBottom() {
 
+  if (!messagesContainer) return;
+
   messagesContainer.scrollTop =
     messagesContainer.scrollHeight;
 
@@ -69,7 +81,7 @@ function scrollToBottom() {
 function clearButtons() {
 
   const oldButtons =
-    messagesContainer.querySelector(
+    messagesContainer?.querySelector(
       ".chat-buttons"
     );
 
@@ -85,7 +97,13 @@ function renderButtons(
 
   clearButtons();
 
-  if (!buttons.length) return;
+  if (
+    !messagesContainer ||
+    !Array.isArray(buttons) ||
+    !buttons.length
+  ) {
+    return;
+  }
 
   const wrapper =
     document.createElement("div");
@@ -122,7 +140,7 @@ function renderButtons(
 }
 
 // ====================================
-// API REQUEST
+// SEND MESSAGE
 // ====================================
 
 export async function sendMessage(
@@ -147,12 +165,14 @@ export async function sendMessage(
 
   try {
 
-    const response = await fetch(
-  "https://agrofirma.onrender.com/fallback-agent",
+    const response =
+      await fetch(
+        `${API_URL}/fallback-agent`,
+        {
           method: "POST",
           headers: {
             "Content-Type":
-            "application/json"
+              "application/json"
           },
           body: JSON.stringify({
             question
@@ -171,9 +191,9 @@ export async function sendMessage(
     const data =
       await response.json();
 
-    // -----------------------
-    // NEW FORMAT
-    // -----------------------
+    // -------------------
+    // TEXT RESPONSE
+    // -------------------
 
     if (data.answer?.text) {
 
@@ -182,13 +202,7 @@ export async function sendMessage(
         "agent"
       );
 
-    }
-
-    // -----------------------
-    // LEGACY FORMAT
-    // -----------------------
-
-    else if (data.text) {
+    } else if (data.text) {
 
       addMessage(
         data.text,
@@ -197,9 +211,9 @@ export async function sendMessage(
 
     }
 
-    // -----------------------
-    // ERROR
-    // -----------------------
+    // -------------------
+    // ERROR RESPONSE
+    // -------------------
 
     if (data.answer?.error) {
 
@@ -210,9 +224,9 @@ export async function sendMessage(
 
     }
 
-    // -----------------------
+    // -------------------
     // BUTTONS
-    // -----------------------
+    // -------------------
 
     const buttons =
       data.buttons ||
@@ -230,7 +244,10 @@ export async function sendMessage(
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Chat Error:",
+      error
+    );
 
     addMessage(
       "Помилка з'єднання із сервером",
@@ -238,22 +255,23 @@ export async function sendMessage(
     );
 
   }
+
 }
 
 // ====================================
-// OPEN / CLOSE WIDGET
+// OPEN CHAT
 // ====================================
 
 toggle?.addEventListener(
   "click",
   () => {
 
-    widget.classList.toggle(
+    widget?.classList.toggle(
       "active"
     );
 
     if (
-      widget.classList.contains(
+      widget?.classList.contains(
         "active"
       ) &&
       !greetingShown
@@ -262,10 +280,25 @@ toggle?.addEventListener(
       greetingShown = true;
 
       sendMessage(
-        ""
+        "privet"
       );
 
     }
+
+  }
+);
+
+// ====================================
+// CLOSE CHAT
+// ====================================
+
+closeBtn?.addEventListener(
+  "click",
+  () => {
+
+    widget?.classList.remove(
+      "active"
+    );
 
   }
 );
@@ -279,11 +312,9 @@ sendBtn?.addEventListener(
   () => {
 
     const text =
-      input.value.trim();
+      input?.value.trim();
 
-    if (!text) {
-      return;
-    }
+    if (!text) return;
 
     sendMessage(text);
 
@@ -321,16 +352,5 @@ input?.addEventListener(
 
     input.value = "";
 
-  }
-);
-
-
-const closeBtn =
-  document.getElementById("chat-close");
-
-closeBtn?.addEventListener(
-  "click",
-  () => {
-    widget.classList.remove("active");
   }
 );
