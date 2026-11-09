@@ -147,10 +147,8 @@ export async function sendMessage(
 
   try {
 
-    const response =
-      await fetch(
-        "/fallback-agent",
-        {
+    const response = await fetch(
+  "https://agrofirma.onrender.com/fallback-agent",
           method: "POST",
           headers: {
             "Content-Type":
