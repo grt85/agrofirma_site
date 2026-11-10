@@ -6,7 +6,7 @@ const path = require("path");
 const fs = require("fs");
 
 const { localAgent } =
-  require("./agents");
+  require("../agents");
 
 require("dotenv").config();
 
