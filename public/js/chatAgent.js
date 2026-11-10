@@ -5,7 +5,7 @@
 const API_URL =
   window.location.hostname.includes("localhost")
     ? "http://localhost:3000"
-    : "https://agrofirma.onrender.com";
+    :"https://agrofirma-site.onrender.com" ;
 
 const messagesContainer =
   document.getElementById("chat-messages");
