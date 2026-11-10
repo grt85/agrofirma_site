@@ -5,33 +5,19 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 
-const { localAgent } =
-  require("../agents");
+const { localAgent } = require("../agents");
 
 require("dotenv").config();
 
 const app = express();
 
-const PORT =
-  process.env.PORT || 10000;
+const PORT = process.env.PORT || 10000;
 
-/* ==================================
-   CORS
-================================== */
-
-app.use(
-  cors({
-    origin: [
-      "https://agrofirma-site.onrender.com",
-      "https://agrofirma.onrender.com",
-      "http://localhost:3000"
-    ]
-  })
-);
-
-/* ==================================
+/* ===================================
    MIDDLEWARE
-================================== */
+=================================== */
+
+app.use(cors());
 
 app.use(bodyParser.json());
 
@@ -41,44 +27,53 @@ app.use(
   })
 );
 
-app.use(
-  express.static(
-    path.join(
-      __dirname,
-      "public"
-    )
-  )
-);
+/* ===================================
+   STATIC FILES
+=================================== */
+
+app.use(express.static(__dirname));
+
+/* ===================================
+   VIEWS
+=================================== */
 
 app.set("view engine", "ejs");
 
 app.set(
   "views",
-  path.join(
-    __dirname,
-    "views"
-  )
+  path.join(__dirname, "../views")
 );
 
-/* ==================================
+/* ===================================
+   ROOT
+=================================== */
+
+app.get("/", (req, res) => {
+  res.sendFile(
+    path.join(
+      __dirname,
+      "index.html"
+    )
+  );
+});
+
+/* ===================================
    FILES
-================================== */
+=================================== */
 
-const filePath =
-  path.join(
-    __dirname,
-    "messages.json"
-  );
+const filePath = path.join(
+  __dirname,
+  "../messages.json"
+);
 
-const logPath =
-  path.join(
-    __dirname,
-    "messages.log"
-  );
+const logPath = path.join(
+  __dirname,
+  "../messages.log"
+);
 
-/* ==================================
+/* ===================================
    ANTISPAM
-================================== */
+=================================== */
 
 const recentSubmissions =
   new Map();
@@ -86,9 +81,9 @@ const recentSubmissions =
 const SPAM_TIMEOUT =
   60 * 1000;
 
-/* ==================================
-   MAILER
-================================== */
+/* ===================================
+   MAIL TRANSPORT
+=================================== */
 
 const transporter =
   nodemailer.createTransport({
@@ -99,9 +94,9 @@ const transporter =
     }
   });
 
-/* ==================================
+/* ===================================
    HELPERS
-================================== */
+=================================== */
 
 function readMessages() {
 
@@ -123,11 +118,11 @@ function readMessages() {
       ? JSON.parse(content)
       : [];
 
-  } catch (err) {
+  } catch (error) {
 
     console.error(
-      "❌ Помилка читання messages.json:",
-      err
+      "Помилка читання messages.json:",
+      error
     );
 
     return [];
@@ -145,25 +140,14 @@ function saveMessageAsJSON(
 
   messages.push(entry);
 
-  try {
-
-    fs.writeFileSync(
-      filePath,
-      JSON.stringify(
-        messages,
-        null,
-        2
-      )
-    );
-
-  } catch (err) {
-
-    console.error(
-      "❌ Помилка запису messages.json:",
-      err
-    );
-
-  }
+  fs.writeFileSync(
+    filePath,
+    JSON.stringify(
+      messages,
+      null,
+      2
+    )
+  );
 
 }
 
@@ -179,14 +163,14 @@ function isDuplicateMessage({
     item =>
       item.email === email &&
       item.message.trim() ===
-        message.trim()
+      message.trim()
   );
 
 }
 
-/* ==================================
+/* ===================================
    BASIC AUTH
-================================== */
+=================================== */
 
 function basicAuth(
   req,
@@ -195,7 +179,8 @@ function basicAuth(
 ) {
 
   const auth =
-    req.headers.authorization || "";
+    req.headers.authorization ||
+    "";
 
   const expected =
     "Basic " +
@@ -212,7 +197,9 @@ function basicAuth(
 
     return res
       .status(401)
-      .send("Доступ заборонено");
+      .send(
+        "Доступ заборонено"
+      );
 
   }
 
@@ -220,9 +207,9 @@ function basicAuth(
 
 }
 
-/* ==================================
+/* ===================================
    CONTACT FORM
-================================== */
+=================================== */
 
 app.post(
   "/api/contact",
@@ -250,17 +237,7 @@ app.post(
 
     }
 
-    if (message.length > 1000) {
-
-      return res.status(400).json({
-        success: false,
-        error:
-          "Повідомлення занадто довге."
-      });
-
-    }
-
-    const emailKey =
+    const key =
       email
         .trim()
         .toLowerCase();
@@ -269,9 +246,7 @@ app.post(
       Date.now();
 
     const lastSent =
-      recentSubmissions.get(
-        emailKey
-      );
+      recentSubmissions.get(key);
 
     if (
       lastSent &&
@@ -282,14 +257,14 @@ app.post(
       return res.status(429).json({
         success: false,
         error:
-          "Зачекайте трохи перед повторним надсиланням."
+          "Зачекайте перед повторним надсиланням."
       });
 
     }
 
     if (
       isDuplicateMessage({
-        email: emailKey,
+        email: key,
         message
       })
     ) {
@@ -297,13 +272,13 @@ app.post(
       return res.status(409).json({
         success: false,
         error:
-          "Це повідомлення вже надсилалось."
+          "Таке повідомлення вже існує."
       });
 
     }
 
     recentSubmissions.set(
-      emailKey,
+      key,
       now
     );
 
@@ -316,11 +291,11 @@ app.post(
 
       const logEntry =
 `[${new Date().toISOString()}]
-Ім’я: ${name}
+Ім'я: ${name}
 Телефон: ${phone}
 Email: ${email}
 Повідомлення: ${message}
----------------------------
+-----------------------------------
 `;
 
       fs.appendFile(
@@ -333,40 +308,29 @@ Email: ${email}
         }
       );
 
-      const jsonEntry = {
-        id: Date.now().toString(),
+      saveMessageAsJSON({
+        id:
+          Date.now().toString(),
         timestamp:
           new Date().toISOString(),
         name,
         phone,
         email,
         message
-      };
+      });
 
-      saveMessageAsJSON(
-        jsonEntry
-      );
-
-      console.log(
-        `[${new Date().toLocaleString()}] Нове повідомлення від ${name} (${email})`
-      );
-
-      return res.json({
+      res.json({
         success: true
       });
 
     } catch (error) {
 
-      console.error(
-        "❌ Помилка надсилання:",
-        error
-      );
+      console.error(error);
 
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         error:
-          error.message ||
-          "Не вдалося надіслати повідомлення."
+          "Помилка сервера"
       });
 
     }
@@ -374,38 +338,34 @@ Email: ${email}
   }
 );
 
-/* ==================================
+/* ===================================
    CHAT AGENT
-================================== */
+=================================== */
 
 app.post(
   "/fallback-agent",
   async (req, res) => {
 
-    const {
-      question
-    } = req.body;
-
     try {
 
       const result =
         await localAgent(
-          question
+          req.body.question
         );
 
       res.json(result);
 
-    } catch (err) {
+    } catch (error) {
 
       console.error(
         "❌ Помилка агента:",
-        err
+        error
       );
 
       res.status(500).json({
         answer: {
           error:
-            err.message
+            error.message
         }
       });
 
@@ -414,9 +374,9 @@ app.post(
   }
 );
 
-/* ==================================
+/* ===================================
    ADMIN PANEL
-================================== */
+=================================== */
 
 app.get(
   "/admin",
@@ -426,102 +386,27 @@ app.get(
     const messages =
       readMessages();
 
-    const fromDate =
-      req.query.from
-        ? new Date(
-            req.query.from
-          )
-        : null;
-
-    const toDate =
-      req.query.to
-        ? new Date(
-            req.query.to
-          )
-        : null;
-
-    const filtered =
-      messages.filter(
-        item => {
-
-          const date =
-            new Date(
-              item.timestamp
-            );
-
-          return (
-            (!fromDate ||
-              date >=
-                fromDate) &&
-            (!toDate ||
-              date <=
-                toDate)
-          );
-
-        }
-      );
-
-    filtered.sort(
-      (a, b) =>
-        new Date(
-          b.timestamp
-        ) -
-        new Date(
-          a.timestamp
-        )
-    );
-
-    const page =
-      parseInt(
-        req.query.page
-      ) || 1;
-
-    const perPage = 10;
-
-    const totalPages =
-      Math.max(
-        1,
-        Math.ceil(
-          filtered.length /
-            perPage
-        )
-      );
-
-    const start =
-      (page - 1) *
-      perPage;
-
-    const pageData =
-      filtered.slice(
-        start,
-        start + perPage
-      );
-
-    const queryParams =
-      `from=${req.query.from || ""}&to=${req.query.to || ""}`;
-
     res.render(
       "admin",
       {
-        pageData,
-        page,
-        totalPages,
-        queryParams,
+        pageData:
+          messages,
+        page: 1,
+        totalPages: 1,
+        queryParams: "",
+        from: "",
+        to: "",
         totalMessages:
-          filtered.length,
-        from:
-          req.query.from || "",
-        to:
-          req.query.to || ""
+          messages.length
       }
     );
 
   }
 );
 
-/* ==================================
-   DELETE
-================================== */
+/* ===================================
+   DELETE SELECTED
+=================================== */
 
 app.post(
   "/admin/delete-selected",
@@ -532,9 +417,11 @@ app.post(
       req.body.selectedIds;
 
     if (!selectedIds) {
+
       return res.redirect(
         "/admin"
       );
+
     }
 
     if (
@@ -549,14 +436,11 @@ app.post(
 
     }
 
-    const messages =
-      readMessages();
-
     const updated =
-      messages.filter(
+      readMessages().filter(
         item =>
           !selectedIds.includes(
-            item.id?.toString()
+            item.id
           )
       );
 
@@ -569,16 +453,14 @@ app.post(
       )
     );
 
-    res.redirect(
-      "/admin"
-    );
+    res.redirect("/admin");
 
   }
 );
 
-/* ==================================
-   SERVER
-================================== */
+/* ===================================
+   START SERVER
+=================================== */
 
 app.listen(
   PORT,
